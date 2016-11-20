@@ -3,6 +3,7 @@
 class MockArm(object):
     def __init__(self):
         self.connected = False
+        self.response = None
 
     def connect(self):
         self.connected = True
@@ -14,10 +15,18 @@ class MockArm(object):
         return self.connected
 
     def read(self):
-        return 'READ RESPONSE'
+        if self.response:
+            res = self.response
+            self.response = None
+            return res
+        return ''
 
     def write(self, msg):
-        pass
+        self.response = '{} OK'.format(msg)
 
     def dump(self):
-        return 'DUMP RESPONSE'
+        if self.response:
+            res = self.response
+            self.response = None
+            return res
+        return ''
