@@ -2,8 +2,7 @@
 
 import os
 
-import arm
-import shell
+import starm
 
 def main():
     # Check for admin privileges.
@@ -13,7 +12,7 @@ def main():
         return 1
 
     # Open the interactive shell.
-    arm_shell = shell.ArmShell(arm.Arm())
+    arm_shell = starm.ArmShell(starm.Arm())
     arm_shell.cmdloop()
 
 

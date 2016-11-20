@@ -4,7 +4,7 @@ import glob
 import os
 import sys
 
-import arm
+import starm
 
 
 HELP_DIR_NAME = 'help'
@@ -183,7 +183,7 @@ class ArmShell(cmd.Cmd):
             try:
                 port = self.arm.connect()
                 print(self.style.success('Success: ', 'Connected to \'{}\'.'.format(port)))
-            except arm.ArmException as e:
+            except starm.ArmException as e:
                 print(self.style.error('Error: ', str(e)))
 
 
