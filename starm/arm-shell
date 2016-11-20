@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+import os
+
+import arm
+import shell
+
+def main():
+    # Check for admin privileges.
+    if os.getuid() != 0:
+        print('Sorry, the Arm Shell must be run with admin privileges.')
+        print('Try running with \'sudo\'.')
+        return 1
+
+    # Open the interactive shell.
+    arm_shell = shell.ArmShell(arm.Arm())
+    arm_shell.cmdloop()
+
+
+if __name__ == '__main__':
+    main()

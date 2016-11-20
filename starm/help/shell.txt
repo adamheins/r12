@@ -1,0 +1,7 @@
+connect     Attempt to connect to the arm.
+disconnect  Disconnect from the arm.
+dump        Print all output arm has queued.
+exit        Close the connection and exit the shell.
+help        Print this help message.
+run         Load and run a FORTH script on the arm.
+status      Print information about the arm.

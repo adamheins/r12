@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='starm',
-      version='0.1.1',
+      version='0.1.2',
       description='Low-level interface for ST Robotics robot arm.',
       url='https://github.com/adamheins/starm',
       author='Adam Heins',
@@ -9,8 +9,12 @@ setup(name='starm',
       license='MIT',
       packages=['starm'],
       install_requires=[
+          'colorama',
           'pyusb',
           'pyserial',
+      ],
+      scripts=[
+          'starm/arm-shell',
       ],
       zip_safe=False)
 
