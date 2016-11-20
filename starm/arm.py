@@ -3,6 +3,7 @@ import glob
 import serial
 import time
 import usb
+import sys
 
 # Arm controller serial properties.
 BAUD_RATE = 19200
@@ -41,7 +42,10 @@ def search_for_port(port_glob, req, expected_res):
                 ser.open()
 
             # Write a request out.
-            ser.write(bytes(req, 'utf-8'))
+            if sys.version_info[0] == 2:
+                ser.write(str(req).encode('utf-8'))
+            else:
+                ser.write(bytes(req, 'utf-8'))
 
             # Wait a short period to allow the connection to generate output.
             time.sleep(0.1)
@@ -101,7 +105,10 @@ class Arm(object):
     def write(self, text):
         ''' Write text out to the arm. '''
         # Output is converted to bytes with Windows-style line endings.
-        text_bytes = bytes(text.upper() + '\r\n', 'utf-8')
+        if sys.version_info[0] == 2:
+            text_bytes = str(text.upper() + '\r\n').encode('utf-8')
+        else:
+            text_bytes = bytes(text.upper() + '\r\n', 'utf-8')
         self.ser.write(text_bytes)
 
 
