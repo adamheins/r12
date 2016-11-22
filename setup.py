@@ -16,7 +16,7 @@ setup(name='r12',
           'pyserial',
       ],
       scripts=['r12/r12-shell'],
-      data_files=[('r12/help', glob.glob('r12/help/*.txt'))],
+      include_package_data=True,
       zip_safe=False,
 )
 

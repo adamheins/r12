@@ -1,0 +1,4 @@
+include README.md
+include LICENSE
+
+include r12/help/*.txt
