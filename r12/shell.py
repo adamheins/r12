@@ -55,13 +55,13 @@ class ShellStyle(object):
         return self._label_desc(cmd, desc, self.success_color)
 
 
-class ArmShell(cmd.Cmd):
+class ArmShell(cmd.Cmd, object):
     ''' An interactive shell for the ST Robotics arm. '''
     DEFAULT_COLOR = colorama.Fore.BLUE
 
 
     def __init__(self, arm, wrapper=None, color=DEFAULT_COLOR):
-        super().__init__()
+        super(ArmShell, self).__init__()
         colorama.init(autoreset=True)
 
         self.arm = arm
@@ -108,7 +108,10 @@ class ArmShell(cmd.Cmd):
                 else:
                     if self.use_rawinput:
                         try:
-                            line = input(self.prompt)
+                            if sys.version_info[0] == 2:
+                                line = raw_input(self.prompt)
+                            else:
+                                line = input(self.prompt)
                         except EOFError:
                             line = 'EOF'
                         except KeyboardInterrupt:
