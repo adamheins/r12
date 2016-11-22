@@ -4,7 +4,7 @@ import glob
 import os
 import sys
 
-import starm
+import r12
 
 
 HELP_DIR_NAME = 'help'
@@ -71,7 +71,7 @@ class ArmShell(cmd.Cmd):
         # output to and from the arm for additional processing.
         self.wrapper = wrapper
 
-        self.intro = self.style.theme('Arm Shell\n') + 'First time? Type \'help\'.'
+        self.intro = self.style.theme('R12 Shell\n') + 'First time? Type \'help\'.'
         self.prompt = self.style.theme('> ')
 
         self.file = None
@@ -183,7 +183,7 @@ class ArmShell(cmd.Cmd):
             try:
                 port = self.arm.connect()
                 print(self.style.success('Success: ', 'Connected to \'{}\'.'.format(port)))
-            except starm.ArmException as e:
+            except r12.ArmException as e:
                 print(self.style.error('Error: ', str(e)))
 
 

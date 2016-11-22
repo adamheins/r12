@@ -2,18 +2,18 @@
 
 import os
 
-import starm
+import r12
 
 def main():
     # Check for admin privileges.
     if os.getuid() != 0:
-        print('Sorry, the Arm Shell must be run with admin privileges.')
+        print('Sorry, the R12 Shell must be run with admin privileges.')
         print('Try running with \'sudo\'.')
         return 1
 
     # Open the interactive shell.
-    arm_shell = starm.ArmShell(starm.Arm())
-    arm_shell.cmdloop()
+    shell = r12.ArmShell(r12.Arm())
+    shell.cmdloop()
 
 
 if __name__ == '__main__':
