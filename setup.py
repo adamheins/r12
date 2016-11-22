@@ -1,9 +1,9 @@
-import glob
-
 from setuptools import setup
 
+version = open('VERSION').read().strip()
+
 setup(name='r12',
-      version='0.2.1',
+      version=version,
       description='Low-level interface for ST Robotics R12 robotic arm.',
       url='https://github.com/adamheins/r12',
       author='Adam Heins',

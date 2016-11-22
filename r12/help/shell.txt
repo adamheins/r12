@@ -5,3 +5,4 @@ exit        Close the connection and exit the shell.
 help        Print this help message.
 run         Load and run a FORTH script on the arm.
 status      Print information about the arm.
+version     Print version information.
