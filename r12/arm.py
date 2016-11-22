@@ -55,7 +55,8 @@ def search_for_port(port_glob, req, expected_res):
             if expected_res in res:
                 return port
 
-    raise ArmException('ST Robotics connection found, but is not responsive. Is the arm powered on?')
+    raise ArmException('ST Robotics connection found, but is not responsive.'
+                       + ' Is the arm powered on?')
     return None
 
 
@@ -70,7 +71,8 @@ class Arm(object):
     def connect(self, port=None):
         ''' Open a serial connection to the arm. '''
         if port is None:
-            self.port = search_for_port('/dev/ttyUSB*', 'ROBOFORTH\r\n', 'ROBOFORTH')
+            self.port = search_for_port('/dev/ttyUSB*', 'ROBOFORTH\r\n',
+                                        'ROBOFORTH')
         else:
             self.port = port
 

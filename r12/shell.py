@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import colorama
 import cmd
 import glob
@@ -71,7 +73,8 @@ class ArmShell(cmd.Cmd, object):
         # output to and from the arm for additional processing.
         self.wrapper = wrapper
 
-        self.intro = self.style.theme('R12 Shell\n') + 'First time? Type \'help\'.'
+        self.intro = '\n'.join([self.style.theme('R12 Shell'),
+                                'First time? Type \'help\'.'])
         self.prompt = self.style.theme('> ')
 
         self.file = None
@@ -185,7 +188,8 @@ class ArmShell(cmd.Cmd, object):
         else:
             try:
                 port = self.arm.connect()
-                print(self.style.success('Success: ', 'Connected to \'{}\'.'.format(port)))
+                print(self.style.success('Success: ',
+                                         'Connected to \'{}\'.'.format(port)))
             except r12.ArmException as e:
                 print(self.style.error('Error: ', str(e)))
 
@@ -209,8 +213,9 @@ class ArmShell(cmd.Cmd, object):
         try:
             with open(arg) as f:
                 lines = [line.strip() for line in f.readlines()]
-        except FileNotFoundError:
-            print(self.style.error('Error: ', 'Could not find file \'{}\'.'.format(arg)))
+        except:
+            print(self.style.error('Error: ',
+                                   'Could not load file \'{}\'.'.format(arg)))
             return
 
         for line in lines:
@@ -303,23 +308,29 @@ class ArmShell(cmd.Cmd, object):
     def load_forth_commands(self, help_dir):
         ''' Load completion list for ROBOFORTH commands. '''
         try:
-            commands, help_text = self.load_commands(os.path.join(help_dir, 'roboforth.txt'))
+            help_file_path = os.path.join(help_dir, 'roboforth.txt')
+            commands, help_text = self.load_commands(help_file_path)
         except FileNotFoundError:
-            print(self.style.warn('Warning: ', 'Failed to load FORTH command list.'))
+            print(self.style.warn('Warning: ',
+                                  'Failed to load FORTH command list.'))
             return
         self.commands['forth'] = commands
-        self.help['forth'] = '\n'.join([self.style.theme('Forth Commands'), help_text])
+        self.help['forth'] = '\n'.join([self.style.theme('Forth Commands'),
+                                        help_text])
 
 
     def load_shell_commands(self, help_dir):
         ''' Load completion list for shell commands. '''
         try:
-            commands, help_text = self.load_commands(os.path.join(help_dir, 'shell.txt'))
+            help_file_path = os.path.join(help_dir, 'shell.txt')
+            commands, help_text = self.load_commands(help_file_path)
         except FileNotFoundError:
-            print(self.style.warn('Warning: ', 'Failed to load shell command list.'))
+            print(self.style.warn('Warning: ',
+                                  'Failed to load shell command list.'))
             return
         self.commands['shell'] = commands
-        self.help['shell'] = '\n'.join([self.style.theme('Shell Commands'), help_text])
+        self.help['shell'] = '\n'.join([self.style.theme('Shell Commands'),
+                                        help_text])
 
 
     def preloop(self):
