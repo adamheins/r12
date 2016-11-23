@@ -311,17 +311,17 @@ class ArmShell(cmd.Cmd, object):
             line = line.strip()
             if len(line) == 0:
                 cmds.append('')
-                desc.append('')
+                descs.append('')
             else:
                 tokens = line.split('  ')
                 cmds.append(tokens[0])
-                desc = ''.join(tokens[1:]).strip()
+                descs.append(''.join(tokens[1:]).strip())
 
-        max_len = len(max(commands, key=len))
+        max_len = len(max(cmds, key=len))
 
         # Convert commands and descriptions into help text.
         text = ''
-        for cmd, desc in zip(cmds, desc):
+        for cmd, desc in zip(cmds, descs):
             if len(cmd) == 0:
                 text += '\n'
             else:

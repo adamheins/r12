@@ -3,7 +3,8 @@
   CALIBRATE  Tell the arm to calibrate itself.
   READY      Send the arm to the READY position.
   HOME       Send the arm to the HOME position.
-  [...] MOVE       Relative move.
-  [...] MOVETO     Absolute move.
-  [VAR] ?    Print variable value.
-  [VAL] [VAR] ! Set value of 
+
+  [...] MOVE     Relative move.
+  [...] MOVETO   Absolute move.
+  [VAR] ?        Print variable VAR's value.
+  [VAL] [VAR] !  Set value of variable VAR to VAL.
