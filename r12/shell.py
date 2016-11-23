@@ -217,7 +217,7 @@ class ArmShell(cmd.Cmd, object):
         try:
             with open(arg) as f:
                 lines = [line.strip() for line in f.readlines()]
-        except:
+        except IOError:
             print(self.style.error('Error: ',
                                    'Could not load file \'{}\'.'.format(arg)))
             return
@@ -298,30 +298,46 @@ class ArmShell(cmd.Cmd, object):
               + ['do_' + x for x in self.commands['forth']])
 
 
-    def load_commands(self, file_path):
+    def parse_help_text(self, file_path):
         ''' Load of list of commands and descriptions from a file. '''
         with open(file_path) as f:
             lines = f.readlines()
 
-        commands = [line.split()[0] for line in lines]
+        # Parse commands and descriptions, which are separated by a multi-space
+        # (any sequence of two or more space characters in a row.
+        cmds = []
+        descs = []
+        for line in lines:
+            line = line.strip()
+            if len(line) == 0:
+                cmds.append('')
+                desc.append('')
+            else:
+                tokens = line.split('  ')
+                cmds.append(tokens[0])
+                desc = ''.join(tokens[1:]).strip()
+
         max_len = len(max(commands, key=len))
 
+        # Convert commands and descriptions into help text.
         text = ''
-        for line in lines:
-            tokens = line.strip().split()
-            text += self.style.help(tokens[0].ljust(max_len + 2),
-                                    ' '.join(tokens[1:]) + '\n')
-        return commands, text
+        for cmd, desc in zip(cmds, desc):
+            if len(cmd) == 0:
+                text += '\n'
+            else:
+                text += self.style.help(cmd.ljust(max_len + 2), desc + '\n')
+
+        return cmds, text
 
 
     def load_forth_commands(self, help_dir):
         ''' Load completion list for ROBOFORTH commands. '''
         try:
             help_file_path = os.path.join(help_dir, 'roboforth.txt')
-            commands, help_text = self.load_commands(help_file_path)
-        except FileNotFoundError:
+            commands, help_text = self.parse_help_text(help_file_path)
+        except IOError:
             print(self.style.warn('Warning: ',
-                                  'Failed to load FORTH command list.'))
+                                  'Failed to load ROBOFORTH help.'))
             return
         self.commands['forth'] = commands
         self.help['forth'] = '\n'.join([self.style.theme('Forth Commands'),
@@ -332,10 +348,9 @@ class ArmShell(cmd.Cmd, object):
         ''' Load completion list for shell commands. '''
         try:
             help_file_path = os.path.join(help_dir, 'shell.txt')
-            commands, help_text = self.load_commands(help_file_path)
-        except FileNotFoundError:
-            print(self.style.warn('Warning: ',
-                                  'Failed to load shell command list.'))
+            commands, help_text = self.parse_help_text(help_file_path)
+        except IOError:
+            print(self.style.warn('Warning: ', 'Failed to load shell help.'))
             return
         self.commands['shell'] = commands
         self.help['shell'] = '\n'.join([self.style.theme('Shell Commands'),
