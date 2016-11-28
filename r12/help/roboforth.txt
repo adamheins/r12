@@ -4,7 +4,7 @@
   READY      Send the arm to the READY position.
   HOME       Send the arm to the HOME position.
 
-  [...] MOVE     Relative move.
-  [...] MOVETO   Absolute move.
-  [VAR] ?        Print variable VAR's value.
-  [VAL] [VAR] !  Set value of variable VAR to VAL.
+  [X Y Z] MOVE    Relative move.
+  [X Y Z] MOVETO  Absolute move.
+  [VAR] ?         Print variable VAR's value.
+  [VAL] [VAR] !   Set value of variable VAR to VAL.
