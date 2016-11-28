@@ -67,7 +67,7 @@ class ArmShell(cmd.Cmd, object):
 
     def __init__(self, arm, wrapper=None, color=DEFAULT_COLOR):
         super(ArmShell, self).__init__()
-        colorama.init(autoreset=True)
+        colorama.init()
 
         self.arm = arm
         self.style = ShellStyle(color)
@@ -95,6 +95,8 @@ class ArmShell(cmd.Cmd, object):
     def cmdloop(self, intro=None):
         ''' Override the command loop to handle Ctrl-C. '''
         self.preloop()
+
+        # Set up completion with readline.
         if self.use_rawinput and self.completekey:
             try:
                 import readline
@@ -103,6 +105,7 @@ class ArmShell(cmd.Cmd, object):
                 readline.parse_and_bind(self.completekey + ': complete')
             except ImportError:
                 pass
+
         try:
             if intro is not None:
                 self.intro = intro
