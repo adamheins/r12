@@ -12,7 +12,7 @@ STOP_BITS = serial.STOPBITS_TWO
 BYTE_SIZE = serial.EIGHTBITS
 
 OUTPUT_ENCODING = 'latin_1'
-READ_TIMEOUT = 1.5
+DEFAULT_READ_TIMEOUT = 1.5
 READ_SLEEP_TIME = 0.1
 
 
@@ -22,14 +22,18 @@ class ArmException(Exception):
 
 
 def search_for_port(port_glob, req, expected_res):
+    ''' Search for the port that the R12 arm is connected to. '''
 
+    # First, check if the expected USB connection exists.
     if usb.core.find(idVendor=0x0403, idProduct=0x6001) is None:
         return None
 
+    # Look for all potential ports.
     ports = glob.glob(port_glob)
     if len(ports) == 0:
         return None
 
+    # Write out to the port and see if the response matches what is expected.
     for port in ports:
         with serial.Serial(
                 port,
@@ -121,21 +125,26 @@ class Arm(object):
         return out.strip('\r\n\t >')
 
 
-    def read(self, raw=False):
+    def read(self, raw=False, timeout=DEFAULT_READ_TIMEOUT):
         ''' Read data from the arm. Data is returned as a latin_1 encoded
             string, or raw bytes if 'raw' is True. '''
+        # TODO actually implement the raw functionality. Problem is finding the
+        # '>' to end the stream.
         time.sleep(READ_SLEEP_TIME)
         out = self.ser.read(self.ser.in_waiting)
         if not raw:
             out = out.decode(OUTPUT_ENCODING)
 
-        # NOTE: currently going off of theory that all responses end with '>'
+        # NOTE: Currently going off of theory that all responses end with '>'.
+        # TODO: It may be better to wait for an OK, because sometimes not all
+        # output is read.
+        # while len(out) == 0 or 'OK' in out:
         time_waiting = 0
         while (len(out) == 0 or out.strip()[-1] != '>'):
             time.sleep(READ_SLEEP_TIME)
             time_waiting += READ_SLEEP_TIME
-            out += self.ser.read(self.ser.in_waiting).decode(OUTPUT_ENCODING) # TODO
-            if time_waiting >= READ_TIMEOUT:
+            out += self.ser.read(self.ser.in_waiting).decode(OUTPUT_ENCODING)
+            if time_waiting >= time_waiting:
                 break
 
         return self._clean_output(out)
