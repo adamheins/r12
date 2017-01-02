@@ -5,7 +5,7 @@ robotic arm.
 ## Install
 Install using pip:
 ```
-pip install git+git://github.com/adamheins/r12.git
+pip install r12
 ```
 
 ## Shell
