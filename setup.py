@@ -13,7 +13,7 @@ setup(name='r12',
       install_requires=[
           'colorama',
           'pyusb',
-          'pyserial',
+          'pyserial>=3',
       ],
       scripts=['r12/r12-shell'],
       include_package_data=True,
