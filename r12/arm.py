@@ -22,10 +22,14 @@ class ArmException(Exception):
 
 
 def search_for_port(port_glob, req, expected_res):
+    ''' Find the serial port the arm is connected to. '''
 
+    # Check that the USB port actually exists, based on the known vendor and
+    # product ID.
     if usb.core.find(idVendor=0x0403, idProduct=0x6001) is None:
         return None
 
+    # Find ports matching the supplied glob.
     ports = glob.glob(port_glob)
     if len(ports) == 0:
         return None
@@ -121,7 +125,7 @@ class Arm(object):
         return out.strip('\r\n\t >')
 
 
-    def read(self, raw=False):
+    def read(self, timeout=READ_TIMEOUT, raw=False):
         ''' Read data from the arm. Data is returned as a latin_1 encoded
             string, or raw bytes if 'raw' is True. '''
         time.sleep(READ_SLEEP_TIME)
@@ -135,7 +139,7 @@ class Arm(object):
             time.sleep(READ_SLEEP_TIME)
             time_waiting += READ_SLEEP_TIME
             out += self.ser.read(self.ser.in_waiting).decode(OUTPUT_ENCODING) # TODO
-            if time_waiting >= READ_TIMEOUT:
+            if time_waiting >= timeout:
                 break
 
         return self._clean_output(out)
