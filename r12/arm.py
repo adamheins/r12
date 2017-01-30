@@ -3,6 +3,7 @@ import glob
 import serial
 import time
 import usb
+import string
 import sys
 
 # Arm controller serial properties.
@@ -12,8 +13,15 @@ STOP_BITS = serial.STOPBITS_TWO
 BYTE_SIZE = serial.EIGHTBITS
 
 OUTPUT_ENCODING = 'latin_1'
-READ_TIMEOUT = 1.5
+
+# The read timeout is intentionally long, so that a complete calibration cycle
+# can happen before timing out.
+READ_TIMEOUT = 30
 READ_SLEEP_TIME = 0.1
+
+CMD_SUCCESS = 'OK'
+CMD_ERROR = 'ABORTED'
+RESPONSE_END_WORDS = [CMD_SUCCESS, CMD_ERROR]
 
 
 class ArmException(Exception):
@@ -61,6 +69,16 @@ def search_for_port(port_glob, req, expected_res):
 
     raise ArmException('ST Robotics connection found, but is not responsive.'
                        + ' Is the arm powered on?')
+    return None
+
+
+def ending_in(s, li):
+    ''' If s ends with an element of the list li, that element will be
+    returned. If multiple elements match, the first will be returned. If no
+    elements match, returns None. '''
+    for ending in li:
+        if s.endswith(ending):
+            return ending
     return None
 
 
@@ -133,13 +151,16 @@ class Arm(object):
         if not raw:
             out = out.decode(OUTPUT_ENCODING)
 
-        # NOTE: currently going off of theory that all responses end with '>'
+        # Assumption:
+        # Strings end with a keyword, followed only by ASCII whitespace and >.
         time_waiting = 0
-        while (len(out) == 0 or out.strip()[-1] != '>'):
+        while len(out) == 0 or ending_in(out.strip(string.whitespace + '>'), RESPONSE_END_WORDS) is None:
             time.sleep(READ_SLEEP_TIME)
             time_waiting += READ_SLEEP_TIME
-            out += self.ser.read(self.ser.in_waiting).decode(OUTPUT_ENCODING) # TODO
+            # TODO this does not handle for raw=True
+            out += self.ser.read(self.ser.in_waiting).decode(OUTPUT_ENCODING)
             if time_waiting >= timeout:
+                # TODO how to handle timeouts, if they're now unexpected?
                 break
 
         return self._clean_output(out)
