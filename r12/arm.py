@@ -23,10 +23,20 @@ CMD_SUCCESS = 'OK'
 CMD_ERROR = 'ABORTED'
 RESPONSE_END_WORDS = [CMD_SUCCESS, CMD_ERROR]
 
+# Assumption: Strings end with a keyword, followed only by ASCII
+# whitespace and >, which is to be stripped off.
+OUTPUT_STRIP_CHARS = string.whitespace + '>'
+
 
 class ArmException(Exception):
     ''' Exception raised when things go wrong with the robot arm. '''
     pass
+
+
+def r12_serial_port(port):
+    ''' Create a serial connect to the arm. '''
+    return serial.Serial(port, baudrate=BAUD_RATE, parity=PARITY,
+                         stopbits=STOP_BITS, bytesize=BYTE_SIZE)
 
 
 def search_for_port(port_glob, req, expected_res):
@@ -43,13 +53,7 @@ def search_for_port(port_glob, req, expected_res):
         return None
 
     for port in ports:
-        with serial.Serial(
-                port,
-                baudrate=BAUD_RATE,
-                parity=PARITY,
-                stopbits=STOP_BITS,
-                bytesize=BYTE_SIZE) as ser:
-
+        with r12_serial_port(port) as ser:
             if not ser.isOpen():
                 ser.open()
 
@@ -101,15 +105,8 @@ class Arm(object):
         if self.port is None:
             raise ArmException('ST Robotics connection not found.')
 
-        self.ser = serial.Serial(
-                port=self.port,
-                baudrate=BAUD_RATE,
-                parity=PARITY,
-                stopbits=STOP_BITS,
-                bytesize=BYTE_SIZE
-        )
+        self.ser = r12_serial_port(port)
 
-        # Open the USB connection to the robot.
         if not self.ser.isOpen():
             self.ser.open()
 
@@ -136,42 +133,36 @@ class Arm(object):
         self.ser.write(text_bytes)
 
 
-    def _clean_output(self, out):
-        ''' Process the serial output to clean it up. '''
-        # To clean the output, leading and trailing whitespace is removed and
-        # extraneous '>' characters are stripped.
-        return out.strip('\r\n\t >')
-
-
     def read(self, timeout=READ_TIMEOUT, raw=False):
         ''' Read data from the arm. Data is returned as a latin_1 encoded
             string, or raw bytes if 'raw' is True. '''
         time.sleep(READ_SLEEP_TIME)
-        out = self.ser.read(self.ser.in_waiting)
-        if not raw:
-            out = out.decode(OUTPUT_ENCODING)
+        raw_out = self.ser.read(self.ser.in_waiting)
+        out = raw_out.decode(OUTPUT_ENCODING)
 
-        # Assumption:
-        # Strings end with a keyword, followed only by ASCII whitespace and >.
         time_waiting = 0
-        while len(out) == 0 or ending_in(out.strip(string.whitespace + '>'), RESPONSE_END_WORDS) is None:
+        while len(out) == 0 or ending_in(out.strip(OUTPUT_STRIP_CHARS), RESPONSE_END_WORDS) is None:
             time.sleep(READ_SLEEP_TIME)
             time_waiting += READ_SLEEP_TIME
-            # TODO this does not handle for raw=True
-            out += self.ser.read(self.ser.in_waiting).decode(OUTPUT_ENCODING)
+
+            raw_out += self.ser.read(self.ser.in_waiting)
+            out = raw_out.decode(OUTPUT_ENCODING)
+
+            # TODO how to handle timeouts, if they're now unexpected?
             if time_waiting >= timeout:
-                # TODO how to handle timeouts, if they're now unexpected?
                 break
 
-        return self._clean_output(out)
+        if raw:
+            return raw_out
+        return out
 
 
     def dump(self, raw=False):
         ''' Dump all output currently in the arm's output queue. '''
-        out = self.ser.read(self.ser.in_waiting)
+        raw_out = self.ser.read(self.ser.in_waiting)
         if raw:
-            return out
-        return out.decode(OUTPUT_ENCODING)
+            return raw_out
+        return raw_out.decode(OUTPUT_ENCODING)
 
 
     def is_connected(self):
